@@ -1,45 +1,31 @@
-// import './App.css';
-// import axios from 'axios';
-// import { useEffect, useState } from 'react';
-
-// function App() {
-//     const [products, setProducts] = useState([]);
-
-//     useEffect(() => {
-//         async function fetchProducts() {
-//             try {
-//                 const { data } = await axios.get(
-//                     'http://localhost:5500/api/products'
-//                 );
-//                 setProducts(data);
-//             } catch (err) {
-//                 console.log(err);
-//             }
-//         }
-//         fetchProducts();
-//     }, []);
-//     return (
-//         <div className="App">
-//             <h1>Yuu's products Products</h1>
-//             {products.map((product) => {
-//                 return (
-//                     <div key={product._id}>
-//                         <h3>{product.name}</h3>
-//                         <p>{product.price}</p>
-//                     </div>
-//                 );
-//             })}
-//         </div>
-//     );
-// }
-
-// export default App;
-
-
 import './App.css';
+import Login from "./pages/Login";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import AuthLayout from './components/layout/AuthLayout';
+import Register from './pages/Register';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import { blue } from '@mui/material/colors';
 
 function App() {
-  return <div className="App"></div>;
+
+  const theme = createTheme({
+    palette: { primary: blue},
+  });
+
+  return (
+    <ThemeProvider  theme={theme} >
+      <CssBaseline />
+      <BrowserRouter> 
+        <Routes>
+          <Route path="/" element={<AuthLayout />}>
+            <Route path="login" element={<Login />}></Route>
+            <Route path="register" element={<Register />}></Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
+  );
 }
 
 export default App;

@@ -16,11 +16,18 @@ const mongoose = require("mongoose");
 const app = express();
 const PORT = 5050; // Win => 5000
 require("dotenv").config();
+const cors = require("cors");
+
+app.use(
+    cors({
+        origin: "http://localhost:3000", 
+    })
+);
 // jsonオブジェクトとして扱うための文
 app.use(express.json());
 // routesのAPIを呼び出すためには/api/v1のエンドポイントを付けるように、という意味。
 // localhost:5050/api/v1/register
-app.use("/api/v1", require("./src/v1/routes/auth"));
+app.use("/api/v1", require("./src/v1/routes"));
 
 // serverディレクトリ内で npm start でサーバ再起動
 
