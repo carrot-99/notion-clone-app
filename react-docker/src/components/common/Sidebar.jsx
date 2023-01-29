@@ -4,17 +4,53 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined"
 import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined"
 import React from 'react'
 import assets from '../../assets/index';
-import { Link, useNavigate } from 'react-router-dom';
-import {useSelector} from "react-redux"
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {useDispatch, useSelector} from "react-redux"
+import { useEffect } from 'react';
+import memoApi from '../../api/memoApi';
+import { setMemo } from '../../redux/features/memoSlice';
+import { useState } from 'react';
 
 export default function Sidebar() {
-
+    const [activeIndex, setActiveIndex] = useState(0);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const {memoId} = useParams();
     const user = useSelector((state) => state.user.value);
+    const memos = useSelector((state) => state.memo.value);
 
     const logout = () => {
         localStorage.removeItem("token");
         navigate("/login");
+    };
+
+    useEffect(() => {
+        const getMemos = async () => {
+            try {
+                const res = await memoApi.getAll();
+                dispatch(setMemo(res));
+            } catch (err) {
+                alert(err);
+            }
+        };
+        getMemos();
+    },[dispatch]);
+
+    useEffect(() => {
+        const activeIndex = memos.findIndex((e) => e._id === memoId);
+        setActiveIndex(activeIndex);
+    }, [navigate]);
+
+    const addMemo = async () => {
+        try {
+            const res = await memoApi.create();
+            const newMemos = [res, ...memos];
+            // これでスーパーグローバルに通知
+            dispatch(setMemo(newMemos));
+            navigate(`memo/${res._id}`);
+        } catch (err) {
+            alert(err);
+        }
     }
 
     return (
@@ -49,30 +85,24 @@ export default function Sidebar() {
                         <Typography variant='body2' fontWeight="700">
                             プライベート
                         </Typography>
-                        <IconButton>
+                        <IconButton onClick={() => addMemo()}>
                             <AddBoxOutlinedIcon />
                         </IconButton>
                     </Box>
                 </ListItemButton>
-                
-                <ListItemButton 
-                    sx={{pl:"20px"}} component={Link} to="/memo/iiiiii">
-                    <Typography>
-                        🗒無題
-                    </Typography>
-                </ListItemButton>
-                <ListItemButton 
-                    sx={{pl:"20px"}} component={Link} to="/memo/iiiiii">
-                    <Typography>
-                        🗒無題
-                    </Typography>
-                </ListItemButton>
-                <ListItemButton 
-                    sx={{pl:"20px"}} component={Link} to="/memo/iiiiii">
-                    <Typography>
-                        🗒無題
-                    </Typography>
-                </ListItemButton>
+                {memos.map((item, index) => (
+                    <ListItemButton 
+                        sx={{pl:"20px"}} 
+                        component={Link} 
+                        to={`/memo/${item._id}`}
+                        key={item._id}
+                        selected={index === activeIndex}
+                    >
+                        <Typography>
+                            {item.icon}{item.title}
+                        </Typography>
+                    </ListItemButton>
+                ))}
             </List>
         </Drawer>
     );    
